@@ -110,11 +110,28 @@ CREATE TABLE public.students (
     id integer NOT NULL,
     first_name character varying(30),
     last_name character varying(30),
-    github character varying(30)
+    github character varying(30) NOT NULL
 );
 
 
 ALTER TABLE public.students OWNER TO "user";
+
+--
+-- Name: report_card_view; Type: VIEW; Schema: public; Owner: user
+--
+
+CREATE VIEW public.report_card_view AS
+ SELECT students.first_name,
+    students.last_name,
+    projects.title,
+    projects.max_grade,
+    grades.grade
+   FROM ((public.students
+     JOIN public.grades ON (((students.github)::text = (grades.student_github)::text)))
+     JOIN public.projects ON (((projects.title)::text = (grades.project_title)::text)));
+
+
+ALTER TABLE public.report_card_view OWNER TO "user";
 
 --
 -- Name: students_id_seq; Type: SEQUENCE; Schema: public; Owner: user
@@ -166,7 +183,7 @@ COPY public.grades (id, student_github, project_title, grade) FROM stdin;
 1	jhacks	Markov	10
 2	sdevelops	Sight word tracker	50
 3	jhacks	Horn circumference tracker	2
-4	sdevelops	That''s what she said generator	50
+4	sdevelops	That's what she said generator	50
 \.
 
 
@@ -185,7 +202,7 @@ COPY public.projects (id, title, description, max_grade) FROM stdin;
 1	Markov	Tweets generated from Markov chains	50
 2	Sight word tracker	App to track students sight words	50
 3	Horn circumference tracker	Tracks and stores unicorn ho\nrn girth	50
-4	That''s what she said generator	Generates jokes from HTML forms	50
+4	That's what she said generator	Generates jokes from HTML forms	50
 \.
 
 
@@ -234,7 +251,7 @@ ALTER TABLE ONLY public.projects
 --
 
 ALTER TABLE ONLY public.students
-    ADD CONSTRAINT students_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT students_pkey PRIMARY KEY (github);
 
 
 --
